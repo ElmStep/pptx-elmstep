@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Notion原稿(Markdown) → ElmStepブランドのPPTX。
+"""Notion原稿 → ElmStepブランドのPPTX。
+
+Notion MCP の `notion-fetch` が返した出力を**そのまま**渡せる。
+（`<page>` / `<properties>` / `<table>` 等のタグは自動で処理する）
 
 変換ルール:
     # 見出し1                  → Section スライド
@@ -8,7 +11,10 @@
 
 使い方:
     python3 notion_to_deck.py <原稿.md> <出力.pptx> ["表紙タイトル"] ["表紙サブタイトル"]
+
+    表紙タイトルを省略すると、Notionページのタイトルを使う。
 """
+import json
 import re
 import sys
 
@@ -17,18 +23,65 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from elmstep_pptx import Deck, WRAP, _char_width, jp_wrap
 
 
+# 原稿ページ名によく付く管理用の接尾辞。表紙では邪魔なので落とす。
+TITLE_SUFFIXES = ("スライド原稿", "スライド案", "原稿", "台本", "たたき台", "ドラフト", "draft")
+
+
+def notion_title(raw: str):
+    """notion-fetch の <properties> からページタイトルを取り出し、表紙用に整える。
+
+    Notionのページ名は「ChatGPT実践研修（ElmStep版）スライド原稿」のように
+    管理用の名前になりがちなので、先頭の絵文字と末尾の管理用ワードを落とす。
+    表紙を明示したいときは引数で渡せばこの推定は使われない。
+    """
+    m = re.search(r"<properties>\s*(\{.*?\})\s*</properties>", raw, re.S)
+    if not m:
+        return None
+    try:
+        t = json.loads(m.group(1)).get("title")
+    except json.JSONDecodeError:
+        return None
+    if not t:
+        return None
+
+    t = re.sub(r"^[^\w\d（(]+\s*", "", t).strip()  # 先頭の絵文字
+    for suf in TITLE_SUFFIXES:
+        if t.lower().endswith(suf.lower()):
+            t = t[: -len(suf)].strip(" 　_-–—")
+            break
+    return t or None
+
+
+def unwrap(raw: str) -> str:
+    """notion-fetch の生出力から本文Markdownだけを取り出す。
+    そのままのMarkdownを渡された場合は素通しする。"""
+    m = re.search(r"<content>\n?(.*?)\n?</content>", raw, re.S)
+    if m:
+        return m.group(1)
+    # <content> が無い＝素のMarkdown。JSONで包まれている場合だけ剥がす
+    if raw.lstrip().startswith("{"):
+        try:
+            return json.loads(raw).get("text", raw)
+        except json.JSONDecodeError:
+            pass
+    return raw
+
+
 def parse(md: str):
     """Markdownをスライド指示のリストに変換する。"""
-    # 表・引用・水平線・コードフェンスは原稿のメタ情報なので落とす
+    md = unwrap(md)
+    # Notionの表ブロックは原稿のメタ情報なので丸ごと落とす
+    md = re.sub(r"<table.*?</table>", "", md, flags=re.S)
+    # 子ページ参照・データソースタグも落とす
+    md = re.sub(r"<page url=.*?</page>", "", md, flags=re.S)
+    md = re.sub(r"</?(ancestor-path|properties|page-discussions)[^>]*>", "", md)
+
+    # 引用・水平線・コードフェンス・表の残骸は落とす
     lines = []
-    in_table = False
     for ln in md.split("\n"):
         s = ln.strip()
-        if s.startswith("|") or s.startswith("<table") or s.startswith("</table"):
-            in_table = True
+        if s.startswith("|") or s.startswith("<t") or s.startswith("</t"):
             continue
-        if in_table and not s.startswith("|"):
-            in_table = False
         if s.startswith(">") or s == "---" or s.startswith("```"):
             continue
         lines.append(ln)
@@ -129,10 +182,14 @@ def build(slides, out, cover_title, cover_sub):
 
 if __name__ == "__main__":
     src, out = sys.argv[1], sys.argv[2]
-    cover_title = sys.argv[3] if len(sys.argv) > 3 else "ChatGPT実践研修"
-    cover_sub = sys.argv[4] if len(sys.argv) > 4 else "株式会社ElmStep"
+    raw = open(src, encoding="utf-8").read()
 
-    slides = parse(open(src, encoding="utf-8").read())
+    # 表紙タイトルは、指定が無ければNotionページのタイトルを使う
+    cover_title = sys.argv[3] if len(sys.argv) > 3 else (notion_title(raw) or "無題")
+    cover_sub = sys.argv[4] if len(sys.argv) > 4 else "株式会社ElmStep"
+    print(f"表紙: 「{cover_title}」 / {cover_sub}")
+
+    slides = parse(raw)
 
     kinds = {}
     for s in slides:
