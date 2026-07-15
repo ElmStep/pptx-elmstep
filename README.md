@@ -61,6 +61,23 @@ d.save("output.pptx")
 python3 build.py
 ```
 
+
+## Notion原稿から生成する
+
+原稿をNotionで管理し、スライドは何度でも作り直す運用ができます。Notionページの本文Markdownを `.md` に保存して渡すだけです。
+
+```bash
+python3 pptx_elmstep/notion_to_deck.py 原稿.md 出力.pptx "表紙タイトル" "株式会社ElmStep"
+```
+
+| Notionの書き方 | 生成されるスライド |
+|---|---|
+| `# 見出し1` | Section（章の区切り） |
+| `## 見出し2` ＋ 箇条書き | Bullets（箇条書き1枚） |
+| `## 見出し2` の下に `### 見出し3` が2つ | TwoCol（左右の対比1枚） |
+
+引用・表・水平線は原稿のメタ情報として自動で無視するので、Notionページの冒頭に記法ガイドを置いたままにできます。生成前に全ブレットが1行に収まるかを検査し、はみ出すものを警告します。
+
 ## API
 
 | メソッド | 用途 |
@@ -84,6 +101,7 @@ python3 build.py
 | `pptx_elmstep/elmstep.pptx` | 空テンプレート |
 | `pptx_elmstep/elmstep_intro.pptx` | 会社紹介5枚入りテンプレート |
 | `pptx_elmstep/elmstep_pptx.py` | `Deck` ヘルパー |
+| `pptx_elmstep/notion_to_deck.py` | Notion原稿(Markdown)→デッキ コンバータ |
 
 ## 依存
 

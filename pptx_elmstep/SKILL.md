@@ -68,6 +68,28 @@ d = Deck(include_intro=False)
 - `elmstep.pptx` — 空テンプレート（`include_intro=False` 時に使用）
 - `elmstep_intro.pptx` — 冒頭5枚の会社紹介スライド入りテンプレート（デフォルト）
 - `elmstep_pptx.py` — スライド生成用の Python ヘルパー（`Deck` クラス）
+- `notion_to_deck.py` — Notion原稿(Markdown)からデッキを生成するコンバータ
+
+## Notion原稿から生成する
+
+研修資料のように「原稿をNotionで管理し、スライドは何度も作り直す」場合は `notion_to_deck.py` を使う。
+Notionページを `fetch` して本文Markdownを `.md` に保存し、渡すだけ。
+
+```bash
+python3 notion_to_deck.py 原稿.md 出力.pptx "表紙タイトル" "表紙サブタイトル"
+```
+
+| Notionの書き方 | 生成されるスライド |
+|---|---|
+| `# 見出し1` | `Section` |
+| `## 見出し2` ＋ 箇条書き | `Bullets` |
+| `## 見出し2` の下に `### 見出し3` が2つ | `TwoCol`（`###` が左右のサブタイトル） |
+
+引用・表・水平線・コードフェンスは原稿のメタ情報として自動で無視する。
+`## 書き方のルール` という見出しの節も無視するので、原稿の冒頭に記法ガイドを置いたままにできる。
+
+生成前に**全ブレットが1行に収まるか検査**し、はみ出すものを一覧で警告する（Notion側を短く直す）。
+表紙は引数で与え、末尾に `Thank you.` を自動で付ける。冒頭の会社紹介5枚は `Deck()` の既定で入る。
 
 ## 手順
 
