@@ -106,6 +106,18 @@ Notion MCP の `notion-fetch` が返した出力を、**加工せずそのまま
 | `pptx_elmstep/elmstep_intro.pptx` | 会社紹介5枚入りテンプレート |
 | `pptx_elmstep/elmstep_pptx.py` | `Deck` ヘルパー |
 | `pptx_elmstep/notion_to_deck.py` | Notion原稿(Markdown)→デッキ コンバータ |
+| `sample-materials/` | 研修デモ用の名刺20枚・領収書20枚（**MIT対象外**） |
+
+## サンプル素材（名刺・領収書）
+
+[`sample-materials/`](sample-materials/) に、AI研修のハンズオンで使うスキャン練習用の画像を置いています。すべて架空の会社・人物・取引で、実在の個人情報は含まれません。
+
+| フォルダ | 中身 | 枚数 |
+|---|---|---|
+| [`sample-materials/cards/`](sample-materials/cards/) | 名刺の写真 | 20枚 |
+| [`sample-materials/receipts/`](sample-materials/receipts/) | 領収書の写真 | 20枚 |
+
+**この素材はMIT Licenseの対象外です。** 著作権は [takpfive](https://github.com/takpfive/claude-code-course-materials-2026-04) 氏に帰属し、株式会社ElmStepが許諾を得て再掲しているものです。再利用には著作権者の許諾が必要です。詳細は [`sample-materials/README.md`](sample-materials/README.md) を参照してください。
 
 ## 依存
 
@@ -115,7 +127,9 @@ Notion MCP の `notion-fetch` が返した出力を、**加工せずそのまま
 
 ## ライセンス
 
-MIT License — 詳細は [LICENSE](LICENSE) を参照。
+**MIT License** — ただし対象は `pptx_elmstep/` 配下のコードとテンプレートのみです。詳細は [LICENSE](LICENSE) を参照。
+
+`sample-materials/` 配下の画像は**MITの対象外**です（著作権は takpfive 氏、ElmStepは許諾を得て再掲）。
 
 ブランドカラー・ワードマーク・会社紹介スライドの内容は株式会社ElmStepに帰属します。フォークして自社ブランドで使う場合は `elmstep.pptx` のマスター色とワードマーク、`elmstep_intro.pptx` の内容を差し替えてください。
 

@@ -1,3 +1,16 @@
+SCOPE / 適用範囲
+This MIT License applies to the contents of `pptx_elmstep/` only.
+
+The images under `sample-materials/` are NOT covered by this license.
+They are copyrighted by takpfive (github.com/takpfive) and are reproduced
+here by ElmStep with the copyright holder's permission. Reuse requires the
+copyright holder's permission, not ElmStep's.
+
+`sample-materials/` 配下の画像は本ライセンスの対象外です。著作権は takpfive 氏に
+帰属し、株式会社ElmStepが許諾を得て再掲しています。
+
+-------------------------------------------------------------------------------
+
 MIT License
 
 Copyright (c) 2026 ElmStep Inc.
